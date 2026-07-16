@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<title>Control Premio</title>
+
+<style>
+
+body{
+    background:#111;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding-top:50px;
+}
+
+button{
+    font-size:22px;
+    padding:15px 25px;
+    margin:10px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#pausar{
+    background:#ff9800;
+}
+
+#continuar{
+    background:#00c853;
+}
+
+#reiniciar{
+    background:#e53935;
+    color:white;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<h1>
+Control del Premio
+</h1>
+
+
+<button id="pausar">
+⏸ Pausar
+</button>
+
+
+<button id="continuar">
+▶ Continuar
+</button>
+
+
+<button id="reiniciar">
+🔄 Reiniciar
+</button>
+
+
+
+<script>
+
+const INICIO = 10000;
+const VELOCIDAD = 10000 / 3600000;
+
+
+function valorActual(){
+
+    let pausado =
+    localStorage.getItem("pausado") === "true";
+
+
+    if(pausado){
+
+        return Number(
+            localStorage.getItem("valorPausado")
+        ) || INICIO;
+
+    }
+
+
+    let inicio =
+    Number(localStorage.getItem("inicioTiempo"));
+
+
+    if(!inicio){
+        inicio = Date.now();
+
+        localStorage.setItem(
+            "inicioTiempo",
+            inicio
+        );
+    }
+
+
+    return INICIO + ((Date.now()-inicio) * VELOCIDAD);
+
+}
+
+
+
+// PAUSAR
+
+document.getElementById("pausar").onclick=function(){
+
+    localStorage.setItem(
+        "valorPausado",
+        valorActual()
+    );
+
+    localStorage.setItem(
+        "pausado",
+        "true"
+    );
+
+};
+
+
+
+// CONTINUAR
+
+document.getElementById("continuar").onclick=function(){
+
+    let valor =
+    Number(localStorage.getItem("valorPausado"))
+    || INICIO;
+
+
+    let tiempo =
+    (valor-INICIO) / VELOCIDAD;
+
+
+    localStorage.setItem(
+        "inicioTiempo",
+        Date.now()-tiempo
+    );
+
+
+    localStorage.setItem(
+        "pausado",
+        "false"
+    );
+
+};
+
+
+
+// REINICIAR
+
+document.getElementById("reiniciar").onclick=function(){
+
+    localStorage.setItem(
+        "inicioTiempo",
+        Date.now()
+    );
+
+
+    localStorage.setItem(
+        "valorPausado",
+        INICIO
+    );
+
+
+    localStorage.setItem(
+        "pausado",
+        "false"
+    );
+
+};
+
+
+</script>
+
+
+</body>
+</html>
