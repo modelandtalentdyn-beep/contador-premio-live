@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Premio Acumulado</title>
+
+<style>
+html, body{
+    margin:0;
+    padding:0;
+    background:transparent;
+    overflow:hidden;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.card{
+    display:inline-block;
+    margin:20px;
+    padding:22px 28px;
+    background:rgba(20,20,20,.75);
+    border-radius:18px;
+    color:#fff;
+    box-shadow:0 0 20px rgba(0,0,0,.35);
+    backdrop-filter:blur(8px);
+}
+
+.title{
+    font-size:28px;
+    font-weight:bold;
+    margin-bottom:12px;
+}
+
+.value{
+    font-size:60px;
+    font-weight:800;
+    letter-spacing:1px;
+}
+
+.buttons{
+    margin-top:20px;
+}
+
+button{
+    border:none;
+    border-radius:10px;
+    padding:10px 18px;
+    margin-right:10px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+button:hover{
+    transform:scale(1.05);
+}
+
+#reset{
+    background:#e53935;
+    color:white;
+}
+
+#pause{
+    background:#00b894;
+    color:white;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+    <div class="title">
+        💰 PREMIO ACUMULADO
+    </div>
+
+    <div id="money" class="value">
+        $10.000,00
+    </div>
+
+    <div class="buttons">
+        <button id="reset">Reiniciar</button>
+        <button id="pause">Pausar</button>
+    </div>
+
+</div>
+
+<script>
+
+const START = 10000;
+const PER_HOUR = 10000;
+const RATE = PER_HOUR / 3600000;
+
+let paused = localStorage.getItem("paused") === "true";
+
+let startTime = Number(localStorage.getItem("startTime"));
+let pausedValue = Number(localStorage.getItem("pausedValue"));
+
+if(!startTime){
+    startTime = Date.now();
+    localStorage.setItem("startTime", startTime);
+}
+
+function formatCOP(value){
+    return value.toLocaleString("es-CO",{
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    });
+}
+
+function currentValue(){
+
+    if(paused){
+        return pausedValue || START;
+    }
+
+    const elapsed = Date.now() - startTime;
+
+    return START + elapsed * RATE;
+
+}
+
+function render(){
+
+    document.getElementById("money").textContent =
+        "$" + formatCOP(currentValue());
+
+    requestAnimationFrame(render);
+
+}
+
+render();
+
+const pauseBtn = document.getElementById("pause");
+
+pauseBtn.textContent = paused ? "Continuar" : "Pausar";
+
+pauseBtn.onclick = function(){
+
+    if(!paused){
+
+        pausedValue = currentValue();
+
+        localStorage.setItem("pausedValue", pausedValue);
+
+        paused = true;
+
+        localStorage.setItem("paused","true");
+
+        this.textContent = "Continuar";
+
+    }else{
+
+        const elapsed = (pausedValue - START) / RATE;
+
+        startTime = Date.now() - elapsed;
+
+        localStorage.setItem("startTime", startTime);
+
+        paused = false;
+
+        localStorage.setItem("paused","false");
+
+        this.textContent = "Pausar";
+
+    }
+
+}
+
+document.getElementById("reset").onclick = function(){
+
+    startTime = Date.now();
+
+    paused = false;
+
+    pausedValue = START;
+
+    localStorage.setItem("startTime", startTime);
+    localStorage.setItem("paused","false");
+    localStorage.removeItem("pausedValue");
+
+    pauseBtn.textContent = "Pausar";
+
+}
+
+</script>
+
+</body>
+</html>
