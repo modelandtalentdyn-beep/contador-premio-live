@@ -35,35 +35,6 @@ html, body{
     font-weight:800;
     letter-spacing:1px;
 }
-
-.buttons{
-    margin-top:20px;
-}
-
-button{
-    border:none;
-    border-radius:10px;
-    padding:10px 18px;
-    margin-right:10px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:.2s;
-}
-
-button:hover{
-    transform:scale(1.05);
-}
-
-#reset{
-    background:#e53935;
-    color:white;
-}
-
-#pause{
-    background:#00b894;
-    color:white;
-}
 </style>
 
 </head>
@@ -87,10 +58,7 @@ const START = 10000;
 const PER_HOUR = 10000;
 const RATE = PER_HOUR / 3600000;
 
-let paused = localStorage.getItem("paused") === "true";
-
 let startTime = Number(localStorage.getItem("startTime"));
-let pausedValue = Number(localStorage.getItem("pausedValue"));
 
 if(!startTime){
     startTime = Date.now();
@@ -105,79 +73,18 @@ function formatCOP(value){
 }
 
 function currentValue(){
-
-    if(paused){
-        return pausedValue || START;
-    }
-
     const elapsed = Date.now() - startTime;
-
     return START + elapsed * RATE;
-
 }
 
 function render(){
-
     document.getElementById("money").textContent =
         "$" + formatCOP(currentValue());
 
     requestAnimationFrame(render);
-
 }
 
 render();
-
-const pauseBtn = document.getElementById("pause");
-
-pauseBtn.textContent = paused ? "Continuar" : "Pausar";
-
-pauseBtn.onclick = function(){
-
-    if(!paused){
-
-        pausedValue = currentValue();
-
-        localStorage.setItem("pausedValue", pausedValue);
-
-        paused = true;
-
-        localStorage.setItem("paused","true");
-
-        this.textContent = "Continuar";
-
-    }else{
-
-        const elapsed = (pausedValue - START) / RATE;
-
-        startTime = Date.now() - elapsed;
-
-        localStorage.setItem("startTime", startTime);
-
-        paused = false;
-
-        localStorage.setItem("paused","false");
-
-        this.textContent = "Pausar";
-
-    }
-
-}
-
-document.getElementById("reset").onclick = function(){
-
-    startTime = Date.now();
-
-    paused = false;
-
-    pausedValue = START;
-
-    localStorage.setItem("startTime", startTime);
-    localStorage.setItem("paused","false");
-    localStorage.removeItem("pausedValue");
-
-    pauseBtn.textContent = "Pausar";
-
-}
 
 </script>
 
